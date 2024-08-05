@@ -18,8 +18,8 @@ const KPI = () => {
             } 
             ${kpi.label === "not assigned" && 'bg-slate-500 '}
             ${kpi.label === "raised today" && 'bg-yellow-500 '}
-            ${kpi.label === "breached" && "bg-red-600 animate-pulse"} ${
-              kpi.label === "about to breach" && "bg-orange-500"
+            ${kpi.label === "breached" && "bg-red-600 "} ${
+              kpi.label === "about to breach" && "bg-orange-500 animate-pulse"
             }`}
             key={index}
           >

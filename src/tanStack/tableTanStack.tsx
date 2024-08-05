@@ -1,8 +1,4 @@
-import React from 'react'
-
-
-
-
+import React, { useEffect, useState } from "react";
 import {
   useReactTable,
   makeStateUpdater,
@@ -19,32 +15,30 @@ import {
   Column,
   Updater,
   functionalUpdate,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 
-import { makeData, Person } from './makeData'
+import { Tickets } from "@/lib/types";
+import { getTickets } from "@/components/api/dashboardApi";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
-// TypeScript setup for our new feature with all of the same type-safety as stock TanStack Table features
-
-// define types for our new feature's custom state
-export type DensityState = 'sm' | 'md' | 'lg'
+export type DensityState = "sm" | "md" | "lg";
 export interface DensityTableState {
-  density: DensityState
+  density: DensityState;
 }
 
-// define types for our new feature's table options
 export interface DensityOptions {
-  enableDensity?: boolean
-  onDensityChange?: OnChangeFn<DensityState>
+  enableDensity?: boolean;
+  onDensityChange?: OnChangeFn<DensityState>;
 }
 
-// Define types for our new feature's table APIs
 export interface DensityInstance {
-  setDensity: (updater: Updater<DensityState>) => void
-  toggleDensity: (value?: DensityState) => void
+  setDensity: (updater: Updater<DensityState>) => void;
+  toggleDensity: (value?: DensityState) => void;
 }
 
 // Use declaration merging to add our new feature APIs and state types to TanStack Table's existing types.
-declare module '@tanstack/react-table' {
+declare module "@tanstack/react-table" {
   //merge our new feature's state with the existing table state
   interface TableState extends DensityTableState {}
   //merge our new feature's options with the existing table options
@@ -72,9 +66,9 @@ export const DensityFeature: TableFeature<any> = {
   // define the new feature's initial state
   getInitialState: (state): DensityTableState => {
     return {
-      density: 'md',
+      density: "md",
       ...state,
-    }
+    };
   },
 
   // define the new feature's default options
@@ -83,8 +77,8 @@ export const DensityFeature: TableFeature<any> = {
   ): DensityOptions => {
     return {
       enableDensity: true,
-      onDensityChange: makeStateUpdater('density', table),
-    } as DensityOptions
+      onDensityChange: makeStateUpdater("density", table),
+    } as DensityOptions;
   },
   // if you need to add a default column definition...
   // getDefaultColumnDef: <TData extends RowData>(): Partial<ColumnDef<TData>> => {
@@ -93,19 +87,19 @@ export const DensityFeature: TableFeature<any> = {
 
   // define the new feature's table instance methods
   createTable: <TData extends RowData>(table: Table<TData>): void => {
-    table.setDensity = updater => {
-      const safeUpdater: Updater<DensityState> = old => {
-        let newState = functionalUpdate(updater, old)
-        return newState
-      }
-      return table.options.onDensityChange?.(safeUpdater)
-    }
-    table.toggleDensity = value => {
-      table.setDensity(old => {
-        if (value) return value
-        return old === 'lg' ? 'md' : old === 'md' ? 'sm' : 'lg' //cycle through the 3 options
-      })
-    }
+    table.setDensity = (updater) => {
+      const safeUpdater: Updater<DensityState> = (old) => {
+        let newState = functionalUpdate(updater, old);
+        return newState;
+      };
+      return table.options.onDensityChange?.(safeUpdater);
+    };
+    table.toggleDensity = (value) => {
+      table.setDensity((old) => {
+        if (value) return value;
+        return old === "lg" ? "md" : old === "md" ? "sm" : "lg"; //cycle through the 3 options
+      });
+    };
   },
 
   // if you need to add row instance APIs...
@@ -116,52 +110,119 @@ export const DensityFeature: TableFeature<any> = {
   // createColumn: <TData extends RowData>(column, table): void => {},
   // if you need to add header instance APIs...
   // createHeader: <TData extends RowData>(header, table): void => {},
-}
+};
 //end of custom feature code
 
 //app code
 function App() {
-  const columns = React.useMemo<ColumnDef<Person>[]>(
+  const navigate = useNavigate();
+  const columns = React.useMemo<ColumnDef<Tickets>[]>(
     () => [
       {
-        accessorKey: 'TicketId',
-        cell: info => info.getValue(),
-        footer: props => props.column.id,
+        accessorKey: "ticket_id",
+        header: "Ticket ID",
+        cell: (info) => info.getValue(),
+        footer: (props) => props.column.id,
       },
       {
-        accessorFn: row => row.lastName,
-        id: 'lastName',
-        cell: info => info.getValue(),
-        header: () => <span>Customer Id</span>,
-        footer: props => props.column.id,
+        accessorKey: "customer_id",
+        header: "Customer ID",
+        cell: (info) => info.getValue(),
+        footer: (props) => props.column.id,
+      },
+      //   {
+      //     accessorKey: "customer_name",
+      //     header: () => "Customer Name",
+      //     footer: (props) => props.column.id,
+      //   },
+      {
+        accessorKey: "type",
+        header: () => <span>type</span>,
+        footer: (props) => props.column.id,
       },
       {
-        accessorKey: 'age',
-        header: () => 'Age',
-        footer: props => props.column.id,
+        accessorKey: "raised_at",
+        header: "Profile Progress",
+        footer: (props) => props.column.id,
       },
       {
-        accessorKey: 'visits',
-        header: () => <span>Visits</span>,
-        footer: props => props.column.id,
+        accessorKey: "title",
+        header: "Title",
+        footer: (props) => props.column.id,
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
-        footer: props => props.column.id,
+        accessorKey: "description",
+        header: "Description",
+        footer: (props) => props.column.id,
       },
       {
-        accessorKey: 'progress',
-        header: 'Profile Progress',
-        footer: props => props.column.id,
+        accessorKey: "severity",
+        header: "Severity",
+        footer: (props) => props.column.id,
       },
+      {
+        accessorKey: "priority",
+        header: "Priority",
+        footer: (props) => props.column.id,
+      },
+      //   {
+      //     accessorKey: "data",
+      //     header: "Data",
+      //     footer: (props) => props.column.id,
+      //   },
+      //   {
+      //     accessorKey: "raised_by_id",
+      //     header: "Raise By ",
+      //     footer: (props) => props.column.id,
+      //   },
+      {
+        accessorKey: "bucket",
+        header: "Bucket",
+        footer: (props) => props.column.id,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        footer: (props) => props.column.id,
+      },
+      //   {
+      //     accessorKey: "file_paths",
+      //     header: "File Paths",
+      //     footer: (props) => props.column.id,
+      //   },
+      {
+        accessorKey: "canPick",
+        header: "Can Pick",
+        cell: () =>
+          clicked ? (
+            <p className="bg-green-600">picked up</p>
+          ) : (
+            <Button
+              className="p-2 bg-violet-600"
+              onClick={() => setClicked(true)}
+            >
+              Pick up
+            </Button>
+          ),
+        footer: (props) => props.column.id,
+      },
+      //   {
+      //     accessorKey: "canAssign",
+      //     header: "Can Assign",
+      //     footer: (props) => props.column.id,
+      //   },
+      //   {
+      //     accessorKey: "assignedToMe",
+      //     header: "Assigne to me",
+      //     footer: (props) => props.column.id,
+      //   },
     ],
     []
-  )
+  );
 
-  const [data, _setData] = React.useState(() => makeData(1000))
-  const [density, setDensity] = React.useState<DensityState>('md')
-
+  const [data, _setData] = React.useState<Tickets[]>([]);
+  const [density, setDensity] = React.useState<DensityState>("md");
+  const [clicked, setClicked] = useState(false);
   const table = useReactTable({
     _features: [DensityFeature], //pass our custom feature to the table to be instantiated upon creation
     columns,
@@ -175,217 +236,242 @@ function App() {
       density, //passing the density state to the table, TS is still happy :)
     },
     onDensityChange: setDensity, //using the new onDensityChange option, TS is still happy :)
-  })
+  });
+
+  async function handleTicketsFetch() {
+    try {
+      const response = await getTickets();
+      console.log(response.data.message);
+
+      _setData(response.data.ticketId);
+    } catch (error) {
+      console.log(error);
+      if(error.response.status === 401 ){
+        navigate("/login");
+      }
+    }
+  }
+
+  useEffect(() => {
+    handleTicketsFetch();
+  }, []);
 
   return (
     <div className="p-2">
-      <div className="h-2" />
-      <button
+      {/* <button
         onClick={() => table.toggleDensity()}
         className="border rounded p-1 bg-blue-500 text-white mb-2 w-64"
       >
         Toggle Density
-      </button>
-      <table>
-        <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map(header => {
-                return (
-                  <th
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    style={{
-                      //using our new feature
-                      padding:
-                        density === 'sm'
-                          ? '4px'
-                          : density === 'md'
-                            ? '8px'
-                            : '16px',
-                      transition: 'padding 0.2s',
-                    }}
-                  >
-                    <div
-                      {...{
-                        className: header.column.getCanSort()
-                          ? 'cursor-pointer select-none'
-                          : '',
-                        onClick: header.column.getToggleSortingHandler(),
-                      }}
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {{
-                        asc: ' 🔼',
-                        desc: ' 🔽',
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                    {header.column.getCanFilter() ? (
-                      <div>
-                        <Filter column={header.column} table={table} />
-                      </div>
-                    ) : null}
-                  </th>
-                )
-              })}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map(row => {
-            return (
-              <tr key={row.id}>
-                {row.getVisibleCells().map(cell => {
+      </button> */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="border-b">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr className="" key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
                   return (
-                    <td
-                      key={cell.id}
+                    <th
+                      className="font-normal text-left border"
+                      key={header.id}
+                      colSpan={header.colSpan}
                       style={{
                         //using our new feature
                         padding:
-                          density === 'sm'
-                            ? '4px'
-                            : density === 'md'
-                              ? '8px'
-                              : '16px',
-                        transition: 'padding 0.2s',
+                          density === "sm"
+                            ? "4px"
+                            : density === "md"
+                            ? "8px"
+                            : "16px",
+                        transition: "padding 0.2s",
                       }}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  )
+                      <div
+                        {...{
+                          className: header.column.getCanSort()
+                            ? "cursor-pointer select-none"
+                            : "",
+                          onClick: header.column.getToggleSortingHandler(),
+                        }}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {{
+                          asc: " 🔼",
+                          desc: " 🔽",
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+
+                      {header.column.getCanFilter() ? (
+                        <div className="mt-1">
+                          <Filter column={header.column} table={table} />
+                        </div>
+                      ) : null}
+                    </th>
+                  );
                 })}
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <div className="h-2" />
-      <div className="flex items-center gap-2">
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => {
+              return (
+                <tr className=" hover:bg-violet-600" key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    return (
+                      <td
+                        key={cell.id}
+                        style={{
+                          //using our new feature
+                          padding:
+                            density === "sm"
+                              ? "4px"
+                              : density === "md"
+                              ? "8px"
+                              : "16px",
+                          transition: "padding 0.2s",
+                        }}
+                        onClick={() => {
+                          cell.column.id === "ticket_id" &&
+                            navigate(`/idPage/${cell.getValue()}`);
+                        }}
+                        className="border"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center gap-2 mt-4">
         <button
           className="border rounded p-1"
           onClick={() => table.firstPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {'<<'}
+          {"<<"}
         </button>
         <button
           className="border rounded p-1"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {'<'}
+          {"<"}
         </button>
         <button
           className="border rounded p-1"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {'>'}
+          {">"}
         </button>
         <button
           className="border rounded p-1"
           onClick={() => table.lastPage()}
           disabled={!table.getCanNextPage()}
         >
-          {'>>'}
+          {">>"}
         </button>
         <span className="flex items-center gap-1">
           <div>Page</div>
           <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
+            {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount().toLocaleString()}
           </strong>
         </span>
-        <span className="flex items-center gap-1">
+        {/* <span className="flex items-center gap-1">
           | Go to page:
           <input
             type="number"
             defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
+            onChange={(e) => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+              table.setPageIndex(page);
             }}
             className="border p-1 rounded w-16"
           />
-        </span>
-        <select
+        </span> */}
+        {/* <select
           value={table.getState().pagination.pageSize}
-          onChange={e => {
-            table.setPageSize(Number(e.target.value))
+          onChange={(e) => {
+            table.setPageSize(Number(e.target.value));
           }}
         >
-          {[10, 20, 30, 40, 50].map(pageSize => (
+          {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
               Show {pageSize}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
-      <div>
-        Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
+      {/* <div>
+        Showing {table.getRowModel().rows.length.toLocaleString()} of{" "}
         {table.getRowCount().toLocaleString()} Rows
       </div>
-      <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
+      <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre> */}
     </div>
-  )
+  );
 }
 
 function Filter({
   column,
   table,
 }: {
-  column: Column<any, any>
-  table: Table<any>
+  column: Column<any, any>;
+  table: Table<any>;
 }) {
   const firstValue = table
     .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id)
+    .flatRows[0]?.getValue(column.id);
 
-  const columnFilterValue = column.getFilterValue()
+  const columnFilterValue = column.getFilterValue();
 
-  return typeof firstValue === 'number' ? (
+  return typeof firstValue === "number" ? (
     <div className="flex space-x-2">
       <input
         type="number"
-        value={(columnFilterValue as [number, number])?.[0] ?? ''}
-        onChange={e =>
+        value={(columnFilterValue as [number, number])?.[0] ?? ""}
+        onChange={(e) =>
           column.setFilterValue((old: [number, number]) => [
             e.target.value,
             old?.[1],
           ])
         }
         placeholder={`Min`}
-        className="w-24 border shadow rounded"
+        className=" font-light rounded-lg px-1 w-16 border border-mute ring-0 bg-transparent"
       />
       <input
         type="number"
-        value={(columnFilterValue as [number, number])?.[1] ?? ''}
-        onChange={e =>
+        value={(columnFilterValue as [number, number])?.[1] ?? ""}
+        onChange={(e) =>
           column.setFilterValue((old: [number, number]) => [
             old?.[0],
             e.target.value,
           ])
         }
         placeholder={`Max`}
-        className="w-24 border shadow rounded"
+        className=" font-light rounded-lg px-1 w-16 border border-mute ring-0 bg-transparent"
       />
     </div>
   ) : (
     <input
       type="text"
-      value={(columnFilterValue ?? '') as string}
-      onChange={e => column.setFilterValue(e.target.value)}
+      value={(columnFilterValue ?? "") as string}
+      onChange={(e) => column.setFilterValue(e.target.value)}
       placeholder={`Search...`}
-      className="w-36 border shadow rounded"
+      className=" font-light rounded-lg px-1 w-16 border border-mute ring-0 bg-transparent"
     />
-  )
+  );
 }
 
-export default App
-
+export default App;

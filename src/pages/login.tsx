@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,12 +12,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loginAPI } from "@/components/api/authApi";
+import { getToken, loginAPI } from "@/components/api/authApi";
 import { useToast } from "@/components/ui/use-toast";
 import InputOTPForm from "./InputOtpForm";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [otpValidate, setOtpValidate] = useState(false);
@@ -41,6 +43,8 @@ const Login = () => {
     try {
       const response = await loginAPI(values);
       setUsername(values.username);
+      console.log(response);
+      
       setId(response.data.uniqueId);
       setOtpValidate(true);
       toast({
@@ -56,6 +60,11 @@ const Login = () => {
       });
     }
   };
+
+  useEffect(() => {
+    
+    if (getToken()) navigate("/");
+  }, []);
 
   return (
     <div className="h-full">

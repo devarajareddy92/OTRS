@@ -103,12 +103,7 @@ input::file-selector-button {
   cursor: pointer;
 }
 
-
-html {
-  font-family: sans-serif;
-  font-size: 14px;
-}
-
+/* 
 table {
   border: 1px solid lightgray;
 }
@@ -133,8 +128,54 @@ tfoot th {
 
 tr {
   border-bottom: 1px solid lightgray;
+
 }
 
 button:disabled {
   opacity: 0.5;
 }
+
+
+td,
+.td {
+  height: 30px;
+  
+}
+
+.resizer {
+
+ 
+  height: 100%;
+  width: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.resizer.ltr {
+  right: 0;
+}
+
+.resizer.rtl {
+  left: 0;
+}
+
+.resizer.isResizing {
+  background: blue;
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .resizer {
+    opacity: 1;
+  }
+
+  *:hover > .resizer {
+    opacity: 1;
+  }
+}
+
+
+
+ */
