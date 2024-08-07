@@ -1,13 +1,18 @@
 import axios from "axios";
 import { getToken } from "./authApi";
 
-export const upload = async () => {
+export const uploadApi = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
   return axios.post(
-    "http://10.101.104.140:5090/file_upload",
-    {},
+    "http://10.101.104.140:8090/file_upload",
+    formData,
     {
       headers: {
         Authorization: getToken(),
+        Accept: 'application/json',
+        'Content-Type': 'text/pdf',
       },
     }
   );

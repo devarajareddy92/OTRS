@@ -9,11 +9,11 @@ const kpis = [
 
 const KPI = () => {
   return (
-    <div className="w-full mt-6 flex justify-center">
-      <div className="flex flex-row gap-10 w-full items-center justify-center">
+    <div className="w-full mt-6 justify-center">
+      <div className="flex gap-10 w-full items-center justify-center ">
         {kpis.map((kpi, index) => (
           <div
-            className={`px-6 py-4 rounded-md border border-muted ${
+            className={`px-3 py-4 rounded-md border border-muted ${
               kpi.label === "technicians available" && "bg-green-600"
             } 
             ${kpi.label === "not assigned" && 'bg-slate-500 '}
@@ -23,8 +23,11 @@ const KPI = () => {
             }`}
             key={index}
           >
-            <p className="font-semibold text-2xl ">{kpi.value}</p>
-            <p className="text-xs capitalize">{kpi.label}</p>
+            <span className="flex align-text-bottom gap-2 align-bottom">
+              
+            <p className="text-2xl font-thin">{kpi.value}</p>
+            <p className="text-xs pt-2 capitalize">{kpi.label}</p>
+            </span>
           </div>
         ))}
       </div>

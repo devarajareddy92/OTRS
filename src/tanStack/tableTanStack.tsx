@@ -21,6 +21,8 @@ import { Tickets } from "@/lib/types";
 import { getTickets } from "@/components/api/dashboardApi";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { removeToken } from "@/components/api/authApi";
+import { pickupApi } from "@/components/api/pickupApi";
 
 export type DensityState = "sm" | "md" | "lg";
 export interface DensityTableState {
@@ -115,6 +117,13 @@ export const DensityFeature: TableFeature<any> = {
 
 //app code
 function App() {
+  const [pickupStatus, setPickupStatus] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [data, _setData] = React.useState<Tickets[]>([]);
+  const [density, setDensity] = React.useState<DensityState>("md");
+  const [clicked, setClicked] = useState<{ [key: string]: boolean }>({});
+  const [Pick, setPick] = useState({ boolean: false });
   const navigate = useNavigate();
   const columns = React.useMemo<ColumnDef<Tickets>[]>(
     () => [
@@ -181,29 +190,34 @@ function App() {
         footer: (props) => props.column.id,
       },
       {
-        accessorKey: "status",
-        header: "Status",
-        footer: (props) => props.column.id,
-      },
-      //   {
-      //     accessorKey: "file_paths",
-      //     header: "File Paths",
-      //     footer: (props) => props.column.id,
-      //   },
-      {
         accessorKey: "canPick",
         header: "Can Pick",
-        cell: () =>
-          clicked ? (
-            <p className="bg-green-600">picked up</p>
-          ) : (
+        cell: (info) => {
+          const ticketId = info.row.original.ticket_id;
+          // return clicked[ticketId] ? (
+          //   <p className="bg-green-600 text-md p-2 rounded-md text-center">{pickupStatus[ticketId]}</p>
+          // ) : (
+          //   <Button
+          //     className="p-2 bg-violet-600 hover:bg-yellow-400"
+          //     onClick={() => handlePickup(ticketId)}
+          //   >
+          //     Pick up
+          //   </Button>
+          // );
+
+          return Pick ? (
             <Button
-              className="p-2 bg-violet-600"
-              onClick={() => setClicked(true)}
+              className="p-2 bg-violet-600 hover:bg-yellow-400"
+              onClick={() => handlePickup(ticketId)}
             >
               Pick up
             </Button>
-          ),
+          ) : (
+            <p className="bg-red-600 text-md p-2 rounded-md text-center">
+              Cannot Assign Ticket
+            </p>
+          );
+        },
         footer: (props) => props.column.id,
       },
       //   {
@@ -217,12 +231,9 @@ function App() {
       //     footer: (props) => props.column.id,
       //   },
     ],
-    []
+    [clicked, pickupStatus]
   );
 
-  const [data, _setData] = React.useState<Tickets[]>([]);
-  const [density, setDensity] = React.useState<DensityState>("md");
-  const [clicked, setClicked] = useState(false);
   const table = useReactTable({
     _features: [DensityFeature], //pass our custom feature to the table to be instantiated upon creation
     columns,
@@ -238,16 +249,51 @@ function App() {
     onDensityChange: setDensity, //using the new onDensityChange option, TS is still happy :)
   });
 
+  const handlePickup = async (id: string) => {
+    console.log("clicked");
+
+    try {
+      const response = await pickupApi(id);
+
+      if (Pick === true) {
+        setPick(true);
+      }
+      setClicked((prev) => ({ ...prev, [id]: true }));
+      setPickupStatus((prev) => ({ ...prev, [id]: response.data.msg }));
+    } catch (error) {
+      console.log(error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        alert("Session expired ! ,login again");
+        navigate("/login");
+      } else {
+        alert("Something Went Wrong");
+      }
+    }
+  };
+
   async function handleTicketsFetch() {
     try {
       const response = await getTickets();
-      console.log(response.data.message);
 
       _setData(response.data.ticketId);
+      console.log(data);
+
+      console.log(response.data);
+
+      response.data.ticketId.map((value: any, index: any) => {
+        if (value.canPick === true) {
+          setPick(true);
+        }
+      });
     } catch (error) {
       console.log(error);
-      if(error.response.status === 401 ){
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        alert("Session expired ! ,login again");
         navigate("/login");
+      } else {
+        alert("Something Went Wrong");
       }
     }
   }
@@ -337,7 +383,7 @@ function App() {
                           cell.column.id === "ticket_id" &&
                             navigate(`/idPage/${cell.getValue()}`);
                         }}
-                        className="border"
+                        className="border cursor-pointer"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

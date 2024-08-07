@@ -27,7 +27,7 @@ export const loginAPI = (data: {
   const token = btoa(`${data.username}:${data.password}`);
 
   return axios.post(
-    "http://10.101.104.140:5090/login",
+    "http://10.101.104.140:8090/login",
     {},
     {
       headers: {
@@ -38,12 +38,12 @@ export const loginAPI = (data: {
 };
 
 export const validate = async (data: OTPValidate) => {
-  return axios.post("http://10.101.104.140:5090/validate_otp", data);
+  return axios.post("http://10.101.104.140:8090/validate_otp", data);
 };
 
 export const logout = async () => {
   return axios.post(
-    "http://10.101.104.140:5090/logout",
+    "http://10.101.104.140:8090/logout",
     {},
     {
       headers: {

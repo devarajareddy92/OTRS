@@ -3,7 +3,7 @@ import { getToken } from "./authApi";
 
 export const getTickets = async (): Promise<AxiosResponse> => {
   return axios.post(
-    "http://10.101.104.140:5090/dashboard",
+    "http://10.101.104.140:8090/dashboard",
     {},
     {
       headers: {
