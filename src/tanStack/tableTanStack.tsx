@@ -123,7 +123,7 @@ function App() {
   const [data, _setData] = React.useState<Tickets[]>([]);
   const [density, setDensity] = React.useState<DensityState>("md");
   const [clicked, setClicked] = useState<{ [key: string]: boolean }>({});
-  const [Pick, setPick] = useState({ boolean: false });
+const [Pick, setPick] = useState(false);
   const navigate = useNavigate();
   const columns = React.useMemo<ColumnDef<Tickets>[]>(
     () => [
@@ -165,6 +165,11 @@ function App() {
         footer: (props) => props.column.id,
       },
       {
+        accessorKey: "status",
+        header: "Status",
+        footer: (props) => props.column.id,
+      },
+      {
         accessorKey: "severity",
         header: "Severity",
         footer: (props) => props.column.id,
@@ -194,7 +199,7 @@ function App() {
         header: "Can Pick",
         cell: (info) => {
           const ticketId = info.row.original.ticket_id;
-          // return clicked[ticketId] ? (
+          // return clicked[ticketId] ?  (
           //   <p className="bg-green-600 text-md p-2 rounded-md text-center">{pickupStatus[ticketId]}</p>
           // ) : (
           //   <Button
@@ -255,9 +260,7 @@ function App() {
     try {
       const response = await pickupApi(id);
 
-      if (Pick === true) {
-        setPick(true);
-      }
+  
       setClicked((prev) => ({ ...prev, [id]: true }));
       setPickupStatus((prev) => ({ ...prev, [id]: response.data.msg }));
     } catch (error) {
@@ -278,14 +281,21 @@ function App() {
 
       _setData(response.data.ticketId);
       console.log(data);
-
+      
       console.log(response.data);
 
-      response.data.ticketId.map((value: any, index: any) => {
-        if (value.canPick === true) {
+      response.data.ticketId.map((value,index) =>{
+        if((value.canPick) === true){
           setPick(true);
+        
+          
         }
-      });
+  
+    });
+  
+        
+        
+
     } catch (error) {
       console.log(error);
       if (error.response && error.response.status === 401) {

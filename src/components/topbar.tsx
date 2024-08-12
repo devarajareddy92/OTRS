@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { logout, removeToken } from "./api/authApi";
 
-import { LogOut } from "lucide-react";
+import { Home, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Popover,
@@ -29,11 +29,18 @@ const TopBar = () => {
     }
   };
 
+  const handleHome = () =>{
+    navigate("/");
+  }
+
   return (
     <div className="sticky top-0 backdrop-blur-md z-[50] flex justify-between items-center px-8 py-3 border-b border-muted">
       <p className="text-xl font-extrabold">OTRS</p>
 
       <div className="flex gap-4 items-center">
+        <Button variant="outline" size="icon">
+          <Home onClick={handleHome}className="h-4 w-4 cursor-pointer float-start size=" />
+        </Button>
         <ModeToggle />
         <Popover>
           <PopoverTrigger asChild>

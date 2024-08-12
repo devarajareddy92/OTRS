@@ -1,13 +1,5 @@
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
+ 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,18 +13,161 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+ 
+  DialogFooter
+} from "@/components/ui/dialog"
 import { useNavigate } from "react-router-dom";
 import KPI from "@/components/kpi";
 import App from "@/tanStack/tableTanStack";
-
+import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+ 
 const Home = () => {
   const navigate = useNavigate();
-
+  const [newTicketDialogOpen, setNewTicketDialogOpen] = useState(false);
+ 
   return (
     <div>
       <KPI />
       <div className="flex justify-end">
+ 
+
+        <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+        <Button
+          className="mt-5 mr-5 p-5 bg-blue-600 rounded-full"
+          variant="outline"
+          onClick={() => setNewTicketDialogOpen(true)}
+          
+        >
+          +
+        </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click here to create a New ticket</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+        {newTicketDialogOpen && (
+          <Dialog open={newTicketDialogOpen} onOpenChange={setNewTicketDialogOpen}>
+            <DialogContent >
+              <DialogHeader>
+                <DialogTitle>Add New Ticket</DialogTitle>
+                <DialogDescription>Fill in the details to create a new ticket</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-2">
+                {/* <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="customertoken" className="text-left">
+                    Customer Token
+                  </Label>
+                  <Input
+                    id="customertoken"
+                    type="number"
+                    className="col-span-3"
+                  />
+                </div> */}
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="tickettype" className="text-left">
+                    Ticket Type
+                  </Label>
+                  <select id="tickettype" className="col-span-3">
+                    <option value="issue">Issue</option>
+                    <option value="request">Request</option>
+                  </select>
+                </div>
+               
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="severity" className="text-left">
+                    Severity
+                  </Label>
+                  <select id="severity" className="col-span-3">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="ticketdate" className="text-left">
+                    Ticket Date
+                  </Label>
+                  <Input
+                    id="ticketdate"
+                    type="date"
+                    className="col-span-3"
+                  />
+                </div>
+ 
+ 
+               <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="title" className="text-left">
+                    Title
+                  </Label>
+                  <Input id="title" type="text" className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-left">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    type="text"
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="remarks" className="text-left">
+                    Remarks
+                  </Label>
+                  <Input id="remarks" type="text" className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="Accesstype" className="text-left">
+                  Assign Type
+                  </Label>
+                  <select id="Accesstype" className="col-span-3">
+                    <option value="user">User</option>
+                    <option value="Group">Group</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="Accesstype" className="text-left">
+                  Assign To
+                  </Label>
+                  <select id="Accesstype" className="col-span-3">
+                    <option value="user">Use_Listr</option>
+                    <option value="Group">Group_List</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="attachments" className="text-left">
+                    Upload Attachments
+                  </Label>
+                  <Input
+                    id="attachments"
+                    type="file"
+                    multiple
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+ 
+              <DialogFooter>
+                <SheetClose asChild>
+                  <Button type="submit" onClick={() => setNewTicketDialogOpen(false)}>
+                    Create Ticket
+                  </Button>
+                </SheetClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
         <Sheet>
           <SheetTrigger asChild>
             <Button className=" mt-5 mr-5 p-5 bg-violet-700" variant="outline">
@@ -156,7 +291,7 @@ const Home = () => {
                 />
               </div>
             </div>
-
+ 
             <SheetFooter>
               <SheetClose asChild>
                 <Button type="submit">Apply</Button>
@@ -165,7 +300,7 @@ const Home = () => {
           </SheetContent>
         </Sheet>
       </div>
-
+ 
       <div className="mt-2">
         {/* <Table>
           <TableCaption>A list of your recent tickets.</TableCaption>
@@ -174,7 +309,7 @@ const Home = () => {
               <TableHead id="ticketId" className="w-[100px]">
                 Ticket Id
               </TableHead>
-
+ 
               <TableHead>Ticket Bucket</TableHead>
               <TableHead>Created On</TableHead>
               <TableHead>Created By</TableHead>
@@ -202,16 +337,17 @@ const Home = () => {
               <TableCell className="">L1-avaliable</TableCell>
               <TableCell className="">22-07-2022:12:00</TableCell>
               <TableCell className="">Not Breached</TableCell>
-
+ 
               <TableCell className="text-right">L1-vaibhav</TableCell>
             </TableRow>
           </TableBody>
         </Table> */}
-
-        <App/>
+ 
+        <App />
       </div>
     </div>
   );
 };
-
+ 
 export default Home;
+ 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken } from "./authApi";
 
-export const uploadApi = async (file) => {
+export const uploadApi = async (file: string | Blob | null) => {
   const formData = new FormData();
   formData.append("file", file);
 

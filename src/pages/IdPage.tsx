@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getTicketDetails } from "@/components/api/ticketDetailsApi";
-import { FileUp, PencilLine, X } from "lucide-react";
+import { AArrowUp, FileUp, PencilLine, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -10,17 +10,57 @@ import { removeToken } from "@/components/api/authApi";
 import { uploadApi } from "@/components/api/uploadApi";
 import { TicketDetails } from "@/lib/types";
 import { SubmitUuid } from "@/components/api/submitApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { getUsers } from "@/components/api/userApi";
+import { assign } from "@/components/api/assignApi";
+import { closeTicketApi } from "@/components/api/closeTicketApi";
 
 const IdPage = () => {
-  const [data, setData] = useState<TicketDetails>(null);
+  const [data, setData] = useState<TicketDetails | null>(null);
   const [resolution, setResolution] = useState("");
-  const [file, setFile] = useState(null);
-  const [uploaded, setUploaded] = useState([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploaded, setUploaded] = useState<
+    Array<{ resolution: string; file: File | null }>
+  >([]);
   const [prevRes, setPrevRes] = useState([]);
-  const [uuid, setUuid] = useState([]);
+  const [uuid, setUuid] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [title, setTitle] = useState("");
   const [events, setEvents] = useState([]);
+  const [selectUser, setSelectUser] = useState(false);
+  const [selectGroup, setSelectGroup] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [ticketId, setTicketId] = useState();
+
+  const [assignType, setAssignType] = useState("");
+  const [assignToGroup, setAssignToGroup] = useState("");
+  const [assignToUser, setAssignToUser] = useState("");
+
+  const [currentBucket, setCurrentBucket] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState("");
+
+  const [assignDialog, setAssignDialog] = useState(false);
+  const [closeTicketDialog, setCloseTicketDialog] = useState(false);
+
+  const [ticketStatus, setTicketStatus] = useState(false);
+ 
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,13 +69,19 @@ const IdPage = () => {
     try {
       const response = await getTicketDetails(id);
       console.log(response);
-
-      console.log(events);
-
+      setLoggedInUser(response.data.username);
+      setCurrentBucket(response.data.bucket);
       setData(response.data);
+      console.log(response.data);
 
       setPrevRes(response.data.resolutions || []);
       setEvents(response.data.eventLog || []);
+      setTicketId(response.data.ticket_id);
+
+      if (response.data.status === "closed") {
+        setTicketStatus(true);
+      }
+
       console.log(events);
     } catch (error) {
       console.log(error);
@@ -50,11 +96,15 @@ const IdPage = () => {
     handleDetailsFetch();
   }, [id]);
 
-  const handleResolutionChange = (e) => {
+  const handleResolutionChange = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setResolution(e.target.value);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: {
+    target: { files: React.SetStateAction<null>[] };
+  }) => {
     setFile(e.target.files[0]);
   };
 
@@ -87,7 +137,7 @@ const IdPage = () => {
     }
   };
 
-  const handleDeleteRes = (index) => {
+  const handleDeleteRes = (index: number) => {
     const updatedUploaded = [...uploaded];
     updatedUploaded.splice(index, 1);
     setUploaded(updatedUploaded);
@@ -97,6 +147,65 @@ const IdPage = () => {
     try {
       const response = await SubmitUuid(uuid, id, title, description);
       console.log(uuid);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUser = async (value: string) => {
+    if (loggedInUser != currentBucket) {
+      setAssignDialog(true);
+      console.log("hello");
+    } else if (value === "user") {
+      setSelectUser(true);
+      setSelectGroup(false);
+      setAssignType(value);
+      try {
+        const response = await getUsers();
+        console.log(response.data);
+        setUsers(response.data.users);
+        setGroups(response.data.groups);
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (value === "group") {
+      setSelectGroup(true);
+      setSelectUser(false);
+      setAssignType(value);
+      try {
+        const response = await getUsers();
+        console.log(response.data);
+        setUsers(response.data.users);
+        setGroups(response.data.groups);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleAssign = async () => {
+    try {
+      const response = await assign(
+        assignType,
+        assignToGroup,
+        assignToUser,
+        ticketId,
+        id
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleTicketClose = async () => {
+
+
+    try {
+      const response = await closeTicketApi(id);
+
+      setCloseTicketDialog(true);
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -124,10 +233,34 @@ const IdPage = () => {
             <p>Status: {data.status}</p>
           </>
         )}
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button disabled={loggedInUser != currentBucket || ticketStatus === true} className="w-2/5 mt-5" variant="destructive">
+              Close Ticket
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                Are you sure, you want to close this ticket?
+              </DialogTitle>
+              <DialogDescription>
+                This Action is irreversible!
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <Button  onClick={handleTicketClose} variant="destructive">
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <p className="font-bold text-xl mt-16">Subject:</p>
-      <div className="border border-muted p-6 my-6 pb-12 rounded-lg max-w-screen-2xl">
+      {/* <p className="font-bold text-xl mt-16">Subject:</p> */}
+      <div className=" border border-muted p-6 my-6 pb-12 rounded-lg max-w-screen-2xl">
         <Tabs defaultValue="account" className="max-w-screen-2xl">
           <TabsList className="my-8 w-full flex justify-evenly">
             <TabsTrigger className="w-1/3" value="description">
@@ -149,7 +282,7 @@ const IdPage = () => {
             <TabsContent value="resolution">
               <div className="mb-10 top-0 left-0">
                 <PencilLine className="mb-10 h-5 w-5" />
-                <Button className="float-right" onClick={handleSubmit}>
+                <Button disabled={loggedInUser != currentBucket} className="float-right" onClick={handleSubmit}>
                   Submit
                 </Button>
 
@@ -199,7 +332,7 @@ const IdPage = () => {
                   type="file"
                   onChange={handleFileChange}
                 />
-                <Button type="button" onClick={handleUpload}>
+                <Button disabled={loggedInUser != currentBucket} type="button" onClick={handleUpload}>
                   Upload
                 </Button>
               </div>
@@ -208,9 +341,11 @@ const IdPage = () => {
             <TabsContent value="audit">
               <p className="text-2xl mb-5">Audit</p>
 
+              <p className="w-4 h-4">1</p>
+
               {events.map((value, index) => (
                 <div className="flex gap-2" key={index}>
-                  <p>{index + 1}.</p>
+                  <p className="">{index + 1}.</p>
 
                   <p className="text-sm mt-1 text-blue-700 pr-10">
                     {value.event_description}
@@ -225,18 +360,101 @@ const IdPage = () => {
           </div>
         </Tabs>
       </div>
-      <div className="border border-muted p-6 my-6 pb-12 rounded-lg max-w-screen-2xl">
-        {/* <Select>
+      <div className="border border-muted p-10 rounded-lg max-w-screen-2xl flex ">
+        <Select onValueChange={(value) => handleUser(value)}>
+          <p className="pt-2 pr-2">Assign to:</p>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Theme" />
+            <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Light</SelectItem>
-            <SelectItem value="dark">Dark</SelectItem>
-            <SelectItem value="system">System</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="group">Group</SelectItem>
           </SelectContent>
-        </Select> */}
+        </Select>
+        <div className="flex ">
+          {selectUser && (
+            <Select onValueChange={(value) => setAssignToUser(value)}>
+              <p className="pt-2 pr-2 ml-20">Users:</p>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((value, index) => (
+                  <SelectItem value={value.username} key={index}>
+                    {value.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div className="flex">
+          {selectGroup && (
+            <Select onValueChange={(value) => setAssignToGroup(value)}>
+              <p className="pt-2 pr-2 ml-20">Groups:</p>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((value, index) => (
+                  <SelectItem value={value.group_name} key={index}>
+                    {value.group_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <Button disabled={loggedInUser != currentBucket} className="ml-24" onClick={handleAssign}>
+          Assign
+        </Button>
       </div>
+
+      <Dialog open={assignDialog} onOpenChange={setAssignDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Ticket is not in your bucket!</DialogTitle>
+            <DialogDescription>Cannot Assign!</DialogDescription>
+          </DialogHeader>
+          Try Assigning some other ticket.
+          <DialogFooter></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={closeTicketDialog} onOpenChange={setCloseTicketDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Ticket Closed Successfully</DialogTitle>
+            <DialogDescription>
+              The ticket has been closed and no further actions are required.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => navigate("/")} variant="primary">
+              Go to Dashboard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* <Dialog open={ticketStatus} onOpenChange={setTicketStatus}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Ticket already closed</DialogTitle>
+            <DialogDescription>
+              This ticket is already closed. No further actions can be taken.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter>
+            <Button onClick={() => navigate("/")} variant="primary">
+              Back to Tickets
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog> */}
     </div>
   );
 };

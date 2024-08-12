@@ -70,6 +70,7 @@ const Login = () => {
     <div className="h-full">
       {otpValidate ? (
         <InputOTPForm id={id} userName={username} />
+        
       ) : (
         <div className="flex justify-center items-center h-screen w-screen">
           <div className="w-1/2 sm:w-2/5 lg:w-1/4">
