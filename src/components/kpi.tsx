@@ -1,6 +1,6 @@
 const kpis = [
   { label: "pending tickets", value: 10 },
-  { label: "raised today", value: 2 },
+ 
   { label: "breached", value: 18 },
   { label: "about to breach", value: 18 },
   { label: "not assigned", value: 18 },
@@ -18,7 +18,7 @@ const KPI = () => {
             } 
             ${kpi.label === "not assigned" && "bg-slate-500 "}
             ${kpi.label === "pending tickets" && "bg-yellow-500 "}
-            ${kpi.label === "raised today" && "bg-blue-500 "}
+            // ${kpi.label === "raised today" && "bg-blue-500 "}
             ${kpi.label === "breached" && "bg-red-600 "} ${
               kpi.label === "about to breach" && "bg-orange-500 animate-pulse"
             }`}

@@ -60,7 +60,6 @@ const IdPage = () => {
   const [closeTicketDialog, setCloseTicketDialog] = useState(false);
 
   const [ticketStatus, setTicketStatus] = useState(false);
- 
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -200,8 +199,6 @@ const IdPage = () => {
   };
 
   const handleTicketClose = async () => {
-
-
     try {
       const response = await closeTicketApi(id);
 
@@ -214,84 +211,112 @@ const IdPage = () => {
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-3 border border-muted p-6 rounded-lg">
+      <div className="grid grid-cols-3 border border-zinc-500 p-6 rounded-lg">
         <span>
           <p className="font-semibold">{id}</p>
           <p className="text-xs text-muted-foreground">Ticket ID</p>
         </span>
         {data && (
           <>
-            <p className="text-xl font-medium">Title: {data.title}</p>
-            <p className="text-xl font-medium">Type: {data.type}</p>
-            <p>Breach Status: {data.breach_status}</p>
-            <p>Bucket: {data.bucket}</p>
-            <p>Customer ID: {data.customer_id}</p>
-            <p>Raised by: {data.raised_by_id}</p>
-            <p>Raised On: {data.raised_at}</p>
-            <p>Severity: {data.severity}</p>
-            <p>SLA Due: {data.sla_due}</p>
-            <p>Status: {data.status}</p>
+            <span className="flex">
+              <p className="mt-1 text-base"> Title : </p>
+              <p className="text-lg text-muted-foreground ml-2 mt-0.5">
+                {data.title}
+              </p>
+            </span>
+            <span className="flex ">
+              <p className="mt-1 text-base">Type :</p>
+              <p className=" text-lg text-muted-foreground ml-2 mt-0.5">
+                {data.type}
+              </p>
+            </span>
+            <span className=" flex ">
+              <p className="mt-1 text-base">Breach Status:</p>
+              <p className=" text-lg text-muted-foreground ml-2 mt-0.5 ">
+                {data.breach_status}
+              </p>
+            </span>
+            <span className=" flex ">
+              <p className="mt-1 text-base">Bucket :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5">
+                {data.bucket}
+              </p>
+            </span>
+            <span className=" flex ">
+              <p className="mt-1 text-base">Customer ID :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.customer_id}
+              </p>
+            </span>
+
+            <span className="flex ">
+              <p className="mt-1 text-base">Raised By :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.raised_by_id}
+              </p>
+            </span>
+
+            <span className=" flex ">
+              <p className="mt-1 text-base">Raised On :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.raised_at}
+              </p>
+            </span>
+            <span className="flex ">
+              <p className="mt-1 text-base">Severity :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.severity}
+              </p>
+            </span>
+            <span className="flex ">
+              <p className="mt-1 text-base">SLA Due :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.sla_due}
+              </p>
+            </span>
+            <span className="flex ">
+              <p className="mt-1 text-base">Status :</p>
+              <p className=" text-base text-muted-foreground ml-2 mt-0.5 ">
+                {data.status}
+              </p>
+            </span>
           </>
         )}
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button disabled={loggedInUser != currentBucket || ticketStatus === true} className="w-2/5 mt-5" variant="destructive">
-              Close Ticket
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                Are you sure, you want to close this ticket?
-              </DialogTitle>
-              <DialogDescription>
-                This Action is irreversible!
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter>
-              <Button  onClick={handleTicketClose} variant="destructive">
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* <p className="font-bold text-xl mt-16">Subject:</p> */}
-      <div className=" border border-muted p-6 my-6 pb-12 rounded-lg max-w-screen-2xl">
-        <Tabs defaultValue="account" className="max-w-screen-2xl">
-          <TabsList className="my-8 w-full flex justify-evenly">
-            <TabsTrigger className="w-1/3" value="description">
+      <div className=" border border-zinc-500 p-6 my-6 pb-12  rounded-lg max-w-screen-2xl">
+        <Tabs defaultValue="description" className="max-w-screen-2xl">
+          <TabsList className="my-2 w-full flex justify-evenly border border-slate-300">
+            <TabsTrigger className="w-1/3 border-zinc-300" value="description">
               Description
             </TabsTrigger>
-            <TabsTrigger className="w-1/3" value="resolution">
+            <TabsTrigger className="w-1/3  border-zinc-300" value="resolution">
               Resolution
             </TabsTrigger>
-            <TabsTrigger className="w-1/3" value="audit">
+            <TabsTrigger className="w-1/3  border-zinc-300" value="audit">
               Audit
             </TabsTrigger>
           </TabsList>
-          <div className="border border-muted p-10 bg-zinc-300 rounded-md text-slate-900 max-w-full">
+          <div className="border border-zinc-200 p-10 bg-zinc-300 rounded-md text-slate-900 max-w-full">
             <TabsContent value="description">
-              <p className="text-2xl">Description:</p>
+              <p className="text-lg mb-4 ">Description:</p>
               {data && data.description}
             </TabsContent>
 
             <TabsContent value="resolution">
               <div className="mb-10 top-0 left-0">
-                <PencilLine className="mb-10 h-5 w-5" />
-                <Button disabled={loggedInUser != currentBucket} className="float-right" onClick={handleSubmit}>
-                  Submit
-                </Button>
-
-                <p className="text-2xl mb-5">Resolutions:</p>
+                <div className="flex  mb-5 ">
+                  <PencilLine className="h-5 w-5 mt-1 mr-2" />
+                  <p className="text-lg">Resolutions:</p>
+                </div>
 
                 {prevRes.map((value, index) => (
                   <div className="flex gap-2" key={index}>
-                    <p>{index + 1}.</p>
-                    <p className="text-sm mt-1 text-blue-700 pr-10">
+                    <p className="inline-flex items-center justify-center w-5 h-5 text-black text-xs bg-white rounded-full mt-3 mr-2">
+                      {index + 1}.
+                    </p>
+                    <p className="text-sm mt-1 text-blue-700 pr-10 bg-slate-200 px-3 py-2 rounded-3xl">
                       {value.description}
                     </p>
                     <p className="text-sm mt-1 text-purple-900">
@@ -303,23 +328,28 @@ const IdPage = () => {
 
               <p className="mb-2">Add Resolutions:</p>
 
-              {uploaded.map((value, index) => (
-                <div className="flex gap-1 pl-4 pr-2 mb-3" key={index}>
-                  <p className="font-medium">{index + 1}.</p>
-                  <p>{value.resolution}</p>
+              <div className="flex">
+                {uploaded.map((value, index) => (
+                  <div className="flex pr-1 mb-3" key={index}>
+                    {/* <p className="font-medium">{index + 1}.</p> */}
 
-                  {value.file && (
-                    <div className="flex mr-4 text-blue-800 gap-3">
-                      {value.file.name}
-                      <X
-                        className="h-3 w-3 text-red-600 border border-slate-600 mt-2 hover:bg-red-600 hover:text-white"
-                        onClick={() => handleDeleteRes(index)}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-              <div className="text-slate-100 flex w-3/4 items-center space-x-2">
+                    <p className="text-sm">{value.resolution},</p>
+
+                    {value.file && (
+                      <div className="flex mr-2 text-blue-800 gap-2 text-sm">
+                        {value.file.name}
+                        <X
+                          className="h-3 w-3 rounded-full text-red-600 border border-slate-600 mt-1 hover:bg-red-600 hover:text-white"
+                          onClick={() => handleDeleteRes(index)}
+                        />
+                        ,
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-slate-100  flex w-3/4 items-center space-x-2">
                 <Input
                   type="text"
                   placeholder="Write your Resolution here..."
@@ -332,25 +362,42 @@ const IdPage = () => {
                   type="file"
                   onChange={handleFileChange}
                 />
-                <Button disabled={loggedInUser != currentBucket} type="button" onClick={handleUpload}>
+                <Button
+                  disabled={
+                    loggedInUser != currentBucket || ticketStatus === true
+                  }
+                  type="button"
+                  onClick={handleUpload}
+                >
                   Upload
+                </Button>
+
+                <Button
+                  disabled={
+                    loggedInUser != currentBucket || ticketStatus === true
+                  }
+                  type="button"
+                
+                  onClick={handleSubmit}
+                >
+                  Submit
                 </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="audit">
-              <p className="text-2xl mb-5">Audit</p>
-
-              <p className="w-4 h-4">1</p>
+              <p className="text-lg mb-5">Audit:</p>
 
               {events.map((value, index) => (
-                <div className="flex gap-2" key={index}>
-                  <p className="">{index + 1}.</p>
+                <div className="flex gap-2 " key={index}>
+                  <p className=" inline-flex items-center justify-center w-5 h-5 mt-1 text-black text-xs bg-white rounded-full">
+                    {index + 1}.
+                  </p>
 
                   <p className="text-sm mt-1 text-blue-700 pr-10">
                     {value.event_description}
                   </p>
-                  <p className="text-sm mt-1 text-purple-900">
+                  <p className="text-sm mt-1 text-purple-900 ">
                     {value.event_datetime}
                   </p>
                   <br />
@@ -360,8 +407,8 @@ const IdPage = () => {
           </div>
         </Tabs>
       </div>
-      <div className="border border-muted p-10 rounded-lg max-w-screen-2xl flex ">
-        <Select onValueChange={(value) => handleUser(value)}>
+      <div className="border border-zinc-500 p-10 rounded-lg max-w-screen-2xl flex ">
+        <Select  disabled={ticketStatus === true} onValueChange={(value) => handleUser(value)}>
           <p className="pt-2 pr-2">Assign to:</p>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select" />
@@ -407,10 +454,40 @@ const IdPage = () => {
           )}
         </div>
 
-        <Button disabled={loggedInUser != currentBucket} className="ml-24" onClick={handleAssign}>
+        <Button
+          disabled={loggedInUser != currentBucket || ticketStatus === true}
+          className="ml-24"
+          onClick={handleAssign}
+        >
           Assign
         </Button>
       </div>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            disabled={loggedInUser != currentBucket || ticketStatus === true}
+            className="float-end mr-4 mt-6 mb-5"
+            variant="destructive"
+          >
+            Close Ticket
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              Are you sure, you want to close this ticket?
+            </DialogTitle>
+            <DialogDescription>This Action is irreversible!</DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter>
+            <Button onClick={handleTicketClose} variant="destructive">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={assignDialog} onOpenChange={setAssignDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -438,23 +515,6 @@ const IdPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* <Dialog open={ticketStatus} onOpenChange={setTicketStatus}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Ticket already closed</DialogTitle>
-            <DialogDescription>
-              This ticket is already closed. No further actions can be taken.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter>
-            <Button onClick={() => navigate("/")} variant="primary">
-              Back to Tickets
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
     </div>
   );
 };

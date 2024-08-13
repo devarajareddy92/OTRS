@@ -13,6 +13,7 @@ export type Tickets = {
   title: string;
   description: string;
   severity: string;
+  sla_due:string;
   priority: string;
   data: string;
   raised_by_id: string;
@@ -44,4 +45,6 @@ export type TicketDetails ={
   assignedToMe: boolean;
   resolutions:[];
   eventLog:[];
+  breach_status:string;
+  sla_due:string;
 }
