@@ -87,7 +87,7 @@ const Home = () => {
       <KPI />
       <div className="flex justify-end">
         <Button
-          className="mt-5 mr-5 p-5 bg-green-700"
+          className="mr-5 p-5 h-6 w-6 bg-blue-700 rounded-full"
           variant="outline"
           onClick={() => setNewTicketDialogOpen(true)}
         >

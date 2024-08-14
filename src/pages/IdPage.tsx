@@ -71,6 +71,7 @@ const IdPage = () => {
       setLoggedInUser(response.data.username);
       setCurrentBucket(response.data.bucket);
       setData(response.data);
+      setTitle(response.data.title);
       console.log(response.data);
 
       setPrevRes(response.data.resolutions || []);
@@ -111,46 +112,76 @@ const IdPage = () => {
     if (resolution === "" && file === null) {
       alert("Enter Resolution or File");
     } else {
+      // Add the resolution to the uploaded list regardless of whether a file is present
       setUploaded([...uploaded, { resolution, file }]);
-      console.log(file.name);
-
+  
+      // Clear the resolution input field
       setResolution("");
+      // Clear the file input field
       setFile(null);
-
-      try {
-        const response = await uploadApi(file);
-        setDescription(resolution);
-        setTitle(response.data.title);
-        setUuid([...uuid, response.data.file_path]);
-        console.log(uuid);
-      } catch (error) {
-        console.log(error);
-        if (error.response && error.response.status === 401) {
-          removeToken();
-          alert("Session expired! Login again.");
-          navigate("/login");
-        } else {
-          alert("Something went wrong");
+  
+      if (file) {
+        try {
+          const response = await uploadApi(file);
+          setDescription(resolution);
+          
+          setUuid([...uuid, response.data.file_path]);
+          console.log(response.data.file_path);
+          console.log(response);
+          
+        } catch (error) {
+          console.log(error);
+          if (error.response && error.response.status === 401) {
+            removeToken();
+            alert("Session expired! Login again.");
+            navigate("/login");
+          } else {
+            alert("Something went wrong");
+          }
         }
       }
     }
   };
-
+ 
+  
   const handleDeleteRes = (index: number) => {
     const updatedUploaded = [...uploaded];
     updatedUploaded.splice(index, 1);
     setUploaded(updatedUploaded);
   };
 
+  
+
   const handleSubmit = async () => {
     try {
-      const response = await SubmitUuid(uuid, id, title, description);
-      console.log(uuid);
+      // Ensure that uuid and description are never undefined
+      const finalUuid = uuid.length > 0 ? uuid : [];
+      const finalDescription = description || "";
+
+      console.log(finalUuid);
+      console.log(title);
+      console.log(description);
+      
+      const fileString = JSON.stringify(finalUuid);
+      console.log(fileString);
+      
+
+      const response = await SubmitUuid(fileString, id, title, finalDescription);
+  
       console.log(response);
+      console.log("Data submitted:", {
+        uuid: finalUuid,
+        id,
+        title,
+        description: finalDescription,
+      });
+  
     } catch (error) {
       console.log(error);
     }
   };
+  
+  
 
   const handleUser = async (value: string) => {
     if (loggedInUser != currentBucket) {
@@ -408,7 +439,7 @@ const IdPage = () => {
         </Tabs>
       </div>
       <div className="border border-zinc-500 p-10 rounded-lg max-w-screen-2xl flex ">
-        <Select  disabled={ticketStatus === true} onValueChange={(value) => handleUser(value)}>
+        <Select onValueChange={(value) => handleUser(value)}>
           <p className="pt-2 pr-2">Assign to:</p>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select" />
