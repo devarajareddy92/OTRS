@@ -23,7 +23,7 @@ pipeline {
         stage('Build') {
             steps {
                 withEnv(['PATH+NODEJS=${tool name: "Nodejs"}/bin']) {
-                    sh 'CI= npm run build'
+                    sh 'npm run build'
                 }
             }
         }
