@@ -4,13 +4,13 @@ pipeline {
         nodejs 'Nodejs' // Use the NodeJS installation configured in Jenkins
     }
     environment {
-        DOCKER_IMAGE_NAME = 'myapp2' // Name of the Docker image
-        DOCKER_HUB_REPO = 'devarajareddy/haproxxyfrontend' // Docker Hub repository
+        DOCKER_IMAGE_NAME = 'myapp3' // Name of the Docker image
+        //DOCKER_HUB_REPO = 'devarajareddy/haproxxyfrontend' // Docker Hub repository
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'new-junkins-branch', url: 'https://github.com/VenkataSiva-Narala/HAProxyV2.git'
+                git branch: 'master', url: 'https://github.com/devarajareddy92/OTRS.git'
             }
         }
         stage('Install Dependencies') {
@@ -34,7 +34,7 @@ pipeline {
         }
         stage('Run Docker Container') {
             steps {
-                sh 'sudo docker run -d -p 8086:80 ${DOCKER_IMAGE_NAME}:latest' // Maps container's port 80 to host's port 8083
+                sh 'sudo docker run -d -p 8084:80 ${DOCKER_IMAGE_NAME}:latest' // Maps container's port 80 to host's port 8083
             }
         }
     }
