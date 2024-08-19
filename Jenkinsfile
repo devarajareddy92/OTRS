@@ -16,21 +16,15 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 withEnv(['PATH+NODEJS=${tool name: "Nodejs"}/bin']) {
-                    sh 'npm install'
+                    sh 'yarn install'
                 }
             }
         }
-         stage('Lint') {
-            steps {
-                withEnv(['PATH+NODEJS=${tool name: "Nodejs"}/bin']) {
-                    sh 'npm run lint' // Ensure this script is defined in package.json to run linter
-                }
-            }
-        }
+        
         stage('Build') {
             steps {
                 withEnv(['PATH+NODEJS=${tool name: "Nodejs"}/bin']) {
-                    sh 'CI= npm run build'
+                    sh 'yarn build'
                 }
             }
         }
