@@ -16,7 +16,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 withEnv(['PATH+NODEJS=${tool name: "Nodejs"}/bin']) {
-                    sh 'yarn install'
+                    sh "npm install -g yarn"
+                    sh "yarn install"
                 }
             }
         }
